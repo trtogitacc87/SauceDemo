@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:
+    inputs:
+      test_groups:
+        description: 'Test groups to run'
+        required: true
+        default: 'fullRegression'
+        type: choice
+        options:
+          - smoke
+          - fullRegression
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 18
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '18'
+
+      - name: Determine test groups
+        id: test_config
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "groups=${{ github.event.inputs.test_groups }}" >> $GITHUB_OUTPUT
+            echo "Test groups: ${{ github.event.inputs.test_groups }} (Manual trigger)"
+          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "groups=smoke" >> $GITHUB_OUTPUT
+            echo "Test groups: smoke (Dev branch)"
+          else
+            echo "groups=fullRegression" >> $GITHUB_OUTPUT
+            echo "Test groups: fullRegression (Main/Master branch)"
+          fi
+
+      - name: Run SauceDemo tests
+        run: mvn -B test -Dgroups=${{ steps.test_config.outputs.groups }}
+
+      - name: Upload ExtentReport artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: extent-report
+          path: ExtentReport
+
+      - name: Upload screenshots artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: ExtentReport/screenshots
