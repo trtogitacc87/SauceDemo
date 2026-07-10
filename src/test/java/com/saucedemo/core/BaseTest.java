@@ -31,6 +31,9 @@ public abstract class BaseTest {
             options.addArguments("-width=1920");
             options.addArguments("-height=1080");
             options.addArguments("-private");
+            if (isHeadlessRun()) {
+                options.addArguments("-headless");
+            }
             options.addPreference("signon.rememberSignons", false);
             options.addPreference("signon.autofillForms", false);
             options.addPreference("signon.autofillForms.http", false);
@@ -55,14 +58,30 @@ public abstract class BaseTest {
             options.addArguments("--disable-credentials-manager");
             options.addArguments("--disable-blink-features=CredentialManagement,PasswordManager");
             options.addArguments("--incognito");
-            // options.addArguments("--headless=new");
             options.addArguments("--window-size=1920,1080");
-            // options.addArguments("--disable-gpu");
-            // options.addArguments("--no-sandbox");
+            options.addArguments("--disable-notifications");
+            options.addArguments("--remote-allow-origins=*");
+            if (isHeadlessRun()) {
+                options.addArguments("--headless=new");
+                options.addArguments("--disable-gpu");
+            }
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+
+            String chromeBinary = System.getenv("CHROME_BIN");
+            if (chromeBinary != null && !chromeBinary.isBlank()) {
+                options.setBinary(chromeBinary);
+            }
+
             threadDriver.set(new ChromeDriver(options));
         }
        // getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
         getDriver().manage().window().maximize();
+    }
+
+    private boolean isHeadlessRun() {
+        return Boolean.parseBoolean(System.getProperty("headless", "false"))
+                || Boolean.parseBoolean(System.getenv().getOrDefault("CI", "false"));
     }
 
     protected void logStep(String message) {

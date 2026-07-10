@@ -43,8 +43,19 @@ jobs:
             echo "Test groups: fullRegression (Main/Master branch)"
           fi
 
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
       - name: Run SauceDemo tests
-        run: mvn -B test -Dgroups=${{ steps.test_config.outputs.groups }}
+        env:
+          CI: true
+        run: |
+          CHROME_BIN="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          echo "Using Chrome binary: ${CHROME_BIN:-<none>}"
+          export CHROME_BIN
+          mvn -B test -Dgroups=${{ steps.test_config.outputs.groups }}
 
       - name: Upload ExtentReport artifact
         if: always()
