@@ -1,7 +1,6 @@
 package com.saucedemo.core;
 
 import com.saucedemo.listeners.TestListener;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +26,7 @@ public abstract class BaseTest {
         String targetBrowser = browser != null ? browser.toLowerCase() : System.getProperty("browser", "chrome").toLowerCase();
 
         if (targetBrowser.contains("firefox")) {
+        
             FirefoxOptions options = new FirefoxOptions();
             options.addArguments("-width=1920");
             options.addArguments("-height=1080");
@@ -42,6 +42,7 @@ public abstract class BaseTest {
             options.addPreference("browser.formfill.enable", false);
             threadDriver.set(new FirefoxDriver(options));
         } else {
+         
             ChromeOptions options = new ChromeOptions();
             Map<String, Object> prefs = new HashMap<>();
             prefs.put("profile.password_manager_enabled", false);

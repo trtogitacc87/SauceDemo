@@ -38,6 +38,7 @@
             <artifactId>extentreports</artifactId>
             <version>5.0.9</version>
         </dependency>
+     
     </dependencies>
 
     <build>
@@ -62,9 +63,6 @@
                     <suiteXmlFiles>
                         <suiteXmlFile>testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
-                    <systemPropertyVariables>
-                        <browser>chrome</browser>
-                    </systemPropertyVariables>
                     <groups>${groups}</groups>
                 </configuration>
             </plugin>
